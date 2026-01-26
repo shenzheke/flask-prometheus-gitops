@@ -1,15 +1,19 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: order-service
+  name: flask-prom
   labels:
-    release: prometheus
+    release: prometheus   # ⚠️ 必须和 kube-prometheus-stack 一致
 spec:
+  namespaceSelector:
+    matchNames:
+      - default            # 或你的应用 namespace
   selector:
     matchLabels:
-      app: order-service
+      app: flask-prom      # ✅ 选 Service，不是 Pod
   endpoints:
-    - port: http
+    - port: http           # ✅ 对应 Service port.name
       path: /metrics
       interval: 15s
+      scrapeTimeout: 10s
 

@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: order-service
+  name: flask-prom
   labels:
-    app: order-service
+    app: flask-prom
 spec:
   selector:
-    app: order-service
+    app: flask-prom
   ports:
-    - name: http
-      port: 5000
+    - name: http   # ⬅️ 这个名字极其重要
+      port: 80
       targetPort: 5000
 

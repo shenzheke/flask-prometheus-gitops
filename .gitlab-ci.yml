@@ -1,5 +1,6 @@
 stages:
   - build
+  - deploy
 
 variables:
   IMAGE_NAME: "flask-prom-demo"
@@ -27,7 +28,7 @@ build-image:
     - /kaniko/executor --context "$CI_PROJECT_DIR" --dockerfile Dockerfile --destination "$KUSTOMIZE_IMAGE_NAME:$IMAGE_TAG" --insecure --skip-tls-verify
 
   only:
-     - master
+     - main
   except:
     variables:
       - $CI_COMMIT_MESSAGE =~ /\[skip ci\]/
@@ -38,12 +39,12 @@ update-k8s-manifest:
   script:
     - |
       PUSH_URL="http://oauth2:${GITLAB_PUSH_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
-      git config --global user.email "szk@hotmail.com"
+      git config --global user.email "law@hotmail.com"
       git config --global user.name "gitlab-ci-law"
-      git checkout  master
-      sed -i "s/newTag:.*/newTag: $CI_COMMIT_SHORT_SHA/" deploy/k8s/kustomization.yaml
-      git add deploy/k8s/kustomization.yaml
+      git checkout  main
+      sed -i "s/newTag:.*/newTag: $CI_COMMIT_SHORT_SHA/" deploy/overlays/prod/kustomization.yaml
+      git add deploy/overlays/prod/kustomization.yaml
       git commit -m "ci: update image tag $CI_COMMIT_SHORT_SHA[skip ci]"
-      git push $PUSH_URL HEAD:master
+      git push $PUSH_URL HEAD:main
   only:
-    - master
+    - main

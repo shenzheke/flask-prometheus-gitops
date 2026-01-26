@@ -7,5 +7,5 @@ spec:
     spec:
       containers:
         - name: app
-          image: harbor.local/library/flask-prometheus:REPLACE_ME
+          image: 10.0.0.41/library/flask-prom-demo:REPLACE_ME
 
