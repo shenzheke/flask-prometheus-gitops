@@ -4,5 +4,5 @@ resources:
 images:
   - name: flask-prom-demo
     newName: 10.0.0.41/library/flask-prom-demo
-    newTag: aa2a878d
+    newTag: REPLACE_ME
 
