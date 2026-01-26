@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: 10.0.0.41/library/flask-prom-demo:latest
+          image: 10.0.0.41/library/flask-prom-demo
           ports:
             - containerPort: 5000
 
