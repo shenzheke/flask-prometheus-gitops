@@ -1,6 +1,8 @@
 resources:
   - ../../base
 
-patchesStrategicMerge:
-  - image-tag.yaml
+images:
+  - name: flask-prom-demo
+    newName: 10.0.0.41/library/flask-prom-demo
+    newTag: REPLACE_ME
 

@@ -42,8 +42,8 @@ update-k8s-manifest:
       git config --global user.email "law@hotmail.com"
       git config --global user.name "gitlab-ci-law"
       git checkout  main
-      sed -i "s/newTag:.*/newTag: $CI_COMMIT_SHORT_SHA/" deploy/overlays/prod/image-tag.yaml
-      git add deploy/overlays/prod/image-tag.yaml
+      sed -i "s/newTag:.*/newTag: $CI_COMMIT_SHORT_SHA/" deploy/overlays/prod/kustomization.yaml
+      git add deploy/overlays/prod/kustomization.yaml
       git commit -m "ci: update image tag $CI_COMMIT_SHORT_SHA[skip ci]"
       git push $PUSH_URL HEAD:main
   only:
