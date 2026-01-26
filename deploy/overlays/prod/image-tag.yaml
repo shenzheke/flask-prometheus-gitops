@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: order-service
+  name: flask-prom
 spec:
   template:
     spec:
