@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from prometheus_flask_exporter import PrometheusMetrics
+from prometheus_client import Counter, Gauge, Histogram
 import time
 import random
 
@@ -35,13 +36,13 @@ IN_PROGRESS = metrics.gauge(
 # 2️⃣ 业务级指标（订单）
 # =========================
 
-ORDER_TOTAL = metrics.counter(
+ORDER_TOTAL = Counter(
     "orders_total",
     "Total orders created",
-    labels={"result": lambda r: r.json.get("status", "unknown")}
+    ["result"]
 )
 
-ORDER_LATENCY = metrics.histogram(
+ORDER_LATENCY =  Histogram(
     "order_processing_seconds",
     "Order processing latency",
     buckets=(0.2, 0.5, 1, 2, 3, 5)
@@ -51,7 +52,7 @@ ORDER_LATENCY = metrics.histogram(
 # 3️⃣ 状态型指标（库存）
 # =========================
 
-INVENTORY = metrics.gauge(
+INVENTORY = Gauge(
     "product_inventory",
     "Current product inventory"
 )
@@ -103,12 +104,10 @@ def index():
 @ORDER_LATENCY.time()
 def create_order():
     # 库存检查
-    current_inventory = INVENTORY._value.get()
+    current_inventory = INVENTORY._value
     if current_inventory <= 0:
-        response = jsonify({"status": "failed", "reason": "out_of_stock"})
-        response.status_code = 409
-        ORDER_TOTAL.labels(result="failed").inc()
-        return response
+        ORDER_TOTAL.labels(result="failed").inc() # 使用 .labels().inc()
+        return jsonify({"status": "failed"}), 409
 
     # 调用外部依赖
     try:
