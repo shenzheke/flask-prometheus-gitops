@@ -7,7 +7,7 @@ metadata:
 spec:
   namespaceSelector:
     matchNames:
-      - default            # 或你的应用 namespace
+      - monitoring            # 或你的应用 namespace
   selector:
     matchLabels:
       app: flask-prom      # ✅ 选 Service，不是 Pod
