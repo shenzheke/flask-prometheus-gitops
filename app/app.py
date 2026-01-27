@@ -138,4 +138,6 @@ def create_order():
 def reset_inventory():
     INVENTORY.set(100)
     return {"inventory": 100}
-
+if __name__ == "__main__":
+    # 必须监听 0.0.0.0 才能在容器外访问
+    app.run(host='0.0.0.0', port=5000)
