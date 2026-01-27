@@ -1,40 +1,30 @@
 from flask import Flask, request, jsonify
 from prometheus_flask_exporter import PrometheusMetrics
+# 全部从原生库导入
 from prometheus_client import Counter, Gauge, Histogram
 import time
 import random
 
 app = Flask(__name__)
+# 仅用于自动生成 /metrics 接口和基础 HTTP 指标
 metrics = PrometheusMetrics(app)
 
 # =========================
-# 1️⃣ 通用请求级指标
+# 1️⃣ 业务/通用指标 (全部使用原生定义)
 # =========================
 
-REQUEST_COUNT = metrics.counter(
-    "http_requests_total",
-    "Total HTTP requests",
-    labels={
-        "method": lambda: request.method,
-        "path": lambda: request.path,
-        "status": lambda r: r.status_code
-    }
-)
-
-REQUEST_LATENCY = metrics.histogram(
+# 对应之前的 REQUEST_LATENCY
+HTTP_REQ_LATENCY = Histogram(
     "http_request_latency_seconds",
     "HTTP request latency",
     buckets=(0.1, 0.3, 0.5, 1, 2, 3, 5)
 )
 
-IN_PROGRESS = metrics.gauge(
+# 对应之前的 IN_PROGRESS
+IN_PROGRESS = Gauge(
     "http_requests_in_progress",
     "In progress HTTP requests"
 )
-
-# =========================
-# 2️⃣ 业务级指标（订单）
-# =========================
 
 ORDER_TOTAL = Counter(
     "orders_total",
@@ -42,101 +32,81 @@ ORDER_TOTAL = Counter(
     ["result"]
 )
 
-ORDER_LATENCY =  Histogram(
+ORDER_LATENCY = Histogram(
     "order_processing_seconds",
     "Order processing latency",
     buckets=(0.2, 0.5, 1, 2, 3, 5)
 )
-
-# =========================
-# 3️⃣ 状态型指标（库存）
-# =========================
 
 INVENTORY = Gauge(
     "product_inventory",
     "Current product inventory"
 )
 
-# 初始化库存
-INVENTORY.set(100)
-
-# =========================
-# 4️⃣ 外部依赖模拟
-# =========================
-
-DEPENDENCY_LATENCY = metrics.histogram(
+# 外部依赖指标
+DEPENDENCY_LATENCY = Histogram(
     "dependency_call_seconds",
     "External dependency latency",
     buckets=(0.05, 0.1, 0.3, 0.5, 1, 2)
 )
 
-DEPENDENCY_ERRORS = metrics.counter(
+DEPENDENCY_ERRORS = Counter(
     "dependency_errors_total",
     "External dependency errors"
 )
 
+# 初始化库存
+INVENTORY.set(100)
+
+# =========================
+# 2️⃣ 业务逻辑
+# =========================
 
 def call_external_service():
-    """模拟支付 / 库存中心 / 第三方 API"""
     latency = random.uniform(0.05, 1.5)
     time.sleep(latency)
-
-    # 10% 概率失败
     if random.random() < 0.1:
         DEPENDENCY_ERRORS.inc()
         raise Exception("External service error")
-
     return latency
 
-
 # =========================
-# 5️⃣ 路由定义
+# 3️⃣ 路由定义
 # =========================
 
 @app.route("/")
 def index():
     return "Order Service with Prometheus Metrics"
 
-
 @app.route("/order", methods=["POST"])
-@IN_PROGRESS.track_inprogress()
-@REQUEST_LATENCY.time()
-@ORDER_LATENCY.time()
+@IN_PROGRESS.track_inprogress() # 现在原生 Gauge 支持这个方法了
+@HTTP_REQ_LATENCY.time()        # 原生 Histogram 支持这个方法
+@ORDER_LATENCY.time()           # 原生 Histogram 支持这个方法
 def create_order():
-    # 库存检查
-    current_inventory = INVENTORY._value
-    if current_inventory <= 0:
-        ORDER_TOTAL.labels(result="failed").inc() # 使用 .labels().inc()
-        return jsonify({"status": "failed"}), 409
+    # 注意：原生 Gauge 获取值建议用 INVENTORY._value.get() 
+    # 或者直接进行逻辑判断
+    if INVENTORY._value.get() <= 0:
+        ORDER_TOTAL.labels(result="failed").inc()
+        return jsonify({"status": "failed", "reason": "out_of_stock"}), 409
 
-    # 调用外部依赖
     try:
         with DEPENDENCY_LATENCY.time():
             call_external_service()
     except Exception:
-        response = jsonify({"status": "failed", "reason": "dependency_error"})
-        response.status_code = 502
         ORDER_TOTAL.labels(result="failed").inc()
-        return response
+        return jsonify({"status": "failed", "reason": "dependency_error"}), 502
 
-    # 模拟业务处理
-    time.sleep(random.uniform(0.1, 0.5))
-
-    # 扣减库存
-    INVENTORY.dec()
-
+    time.sleep(random.uniform(0.1, 0.3))
+    
+    INVENTORY.dec() # 正常扣减
     ORDER_TOTAL.labels(result="success").inc()
 
-    return jsonify({
-        "status": "success",
-        "order_id": random.randint(10000, 99999)
-    })
-
+    return jsonify({"status": "success", "order_id": random.randint(1000, 9999)})
 
 @app.route("/inventory/reset", methods=["POST"])
 def reset_inventory():
     INVENTORY.set(100)
     return {"inventory": 100}
+
 if __name__ == "__main__":
-    # 必须监听 0.0.0.0 才能在容器外访问
     app.run(host='0.0.0.0', port=5000)
