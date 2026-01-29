@@ -143,7 +143,7 @@ sum(rate(orders_total[5m]))
 ```
 
 ![订单成功率](https://github.com/user-attachments/assets/be590168-a43c-4e3c-8836-3e43ea0b0403)
-*<span style="color:red">过去 5 分钟内所有成功的订单数 / 过去 5 分钟内所有订单总数，也就是订单成功率（Success Rate）</span>*
+*过去 5 分钟内所有成功的订单数 / 过去 5 分钟内所有订单总数，也就是订单成功率*
 
 
 
@@ -153,7 +153,7 @@ max_over_time(http_requests_in_progress[1m])
 ```
 
 ![并发峰值](https://github.com/user-attachments/assets/542c1a13-3c1a-4f6b-8a77-709ed71725e0)
-* 并发峰值（生产常用）看并发Gauge(容量规划 / HPA 的重要依据)*
+*并发峰值（生产常用）看并发Gauge(容量规划 / HPA 的重要依据)*
 
 
 ## 搞了几轮压测，会把库存打爆，要及时恢复，否则总是返回409,便于后续实验。
