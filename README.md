@@ -104,7 +104,7 @@ product_inventory 100.0
 rate(http_request_latency_seconds_bucket[5m])
 ```
 
-(https://github.com/user-attachments/assets/2feed478-9b36-42fe-9f83-cbe585e85e2a)
+![原始直方图桶](https://github.com/user-attachments/assets/2feed478-9b36-42fe-9f83-cbe585e85e2a)
 *原始直方图桶（histogram buckets）*
 
 例如，单击“le=0.1“的条目，发现对应的Y轴值为0.5，意思是过去5分钟的http请求延迟低于0.1s的请求速率，合计每秒0.5个。例如le=”+Inf“的条目对应Y轴值大约为1，即为5分钟内收到的所有请求大约为1x5x60=300个，和测试相符。
@@ -120,7 +120,7 @@ histogram_quantile(
 )
 ```
 
-<img width="1904" height="996" alt="image" src="https://github.com/user-attachments/assets/34e0b371-c0a3-4baf-a118-6bcbe4b37e72" />
+![计算 HTTP 请求延迟的 95% 分位数（即 P95 延迟）](https://github.com/user-attachments/assets/34e0b371-c0a3-4baf-a118-6bcbe4b37e72)
 *计算 HTTP 请求延迟的 95% 分位数（即 P95 延迟）：过去 5 分钟内，95% 的 HTTP 请求响应时间 ≤ 1.7xx 秒*
 
 
@@ -131,7 +131,7 @@ rate(http_request_latency_seconds_sum[5m])
 rate(http_request_latency_seconds_count[5m])
 ```
 
-<img width="1893" height="987" alt="image" src="https://github.com/user-attachments/assets/dd6b5dd3-871e-447d-809d-cb473f750879" />
+![过去5分钟内的平均请求延迟](https://github.com/user-attachments/assets/dd6b5dd3-871e-447d-809d-cb473f750879)
 *rate(sum[5m]) / rate(count[5m])= (总延迟增量 / 时间窗口) / (请求数增量 / 时间窗口)= 总延迟增量 / 请求数增量= 过去5分钟内的平均请求延迟（秒）*
 
 
@@ -142,7 +142,7 @@ sum(rate(orders_total{result="success"}[5m]))
 sum(rate(orders_total[5m]))
 ```
 
-<img width="1870" height="811" alt="image" src="https://github.com/user-attachments/assets/be590168-a43c-4e3c-8836-3e43ea0b0403" />
+![订单成功率](https://github.com/user-attachments/assets/be590168-a43c-4e3c-8836-3e43ea0b0403)
 *<span style="color:red">过去 5 分钟内所有成功的订单数 / 过去 5 分钟内所有订单总数，也就是订单成功率（Success Rate）</span>*
 
 
@@ -152,10 +152,9 @@ max_over_time(http_requests_in_progress[1m])
 
 ```
 
-<img width="1876" height="975" alt="image" src="https://github.com/user-attachments/assets/542c1a13-3c1a-4f6b-8a77-709ed71725e0" />
-* 并发峰值（生产常用）*
+![并发峰值](https://github.com/user-attachments/assets/542c1a13-3c1a-4f6b-8a77-709ed71725e0)
+* 并发峰值（生产常用）看并发Gauge(容量规划 / HPA 的重要依据)*
 
-看并发 Gauge(容量规划 / HPA 的重要依据)
 
 - 搞了几轮压测，会把库存打爆，要及时恢复，否则总是返回409
 
