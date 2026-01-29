@@ -61,7 +61,7 @@ flask-prom                            2d17h
 
 ## 开始实验
 
-- 确定库存正常：product_inventory 100.0
+确定库存正常：product_inventory 100.0
 
 ```
 [root@m01 devops]# curl http://10.104.160.163/metrics | grep product_inventory
@@ -81,14 +81,14 @@ product_inventory 100.0
 {"order_id":4234,"status":"success"}
 ```
 
-- 执行压测(二选一即可)：
+执行压测(二选一即可)：
 
-  ```
+```
   for i in {1..200}; do   curl -X POST http://10.104.160.163/order & done
   
-  ```
+```
 
-  ```
+```
   for i in {1..300}
   do
     curl -s -o /dev/null -w "%{http_code}\n" \
@@ -96,9 +96,9 @@ product_inventory 100.0
          -H "Content-Type: application/json" \
          -d "{\"order_id\": $i, \"user_id\": 10086, \"amount\": 99.9}" &
   done
-  ```
+```
 
-  连续执行上述压测两次，观察图像：注意以下图的时间，**正确理解是Prometheus显示的时间+8h等于你的真实时间。**
+连续执行上述压测两次，观察图像：注意以下图的时间，**正确理解是Prometheus显示的时间+8h等于你的真实时间。**
 
 ```
 rate(http_request_latency_seconds_bucket[5m])
@@ -156,7 +156,7 @@ max_over_time(http_requests_in_progress[1m])
 * 并发峰值（生产常用）看并发Gauge(容量规划 / HPA 的重要依据)*
 
 
-- 搞了几轮压测，会把库存打爆，要及时恢复，否则总是返回409
+## 搞了几轮压测，会把库存打爆，要及时恢复，否则总是返回409,便于后续实验。
 
   ```
   [root@m01 devops]# curl http://10.104.160.163/metrics | grep product_inventory
@@ -177,4 +177,6 @@ max_over_time(http_requests_in_progress[1m])
   product_inventory 100.0
   
   ```
+
+## 建议：搭建好实验环境后可把图片和PromQL喂给多个AI交叉验证，在没有人类指导者时能极大帮助你。
 
