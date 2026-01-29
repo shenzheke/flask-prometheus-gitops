@@ -104,8 +104,8 @@ product_inventory 100.0
 rate(http_request_latency_seconds_bucket[5m])
 ```
 
-<img width="1889" height="1020" alt="image" src="https://github.com/user-attachments/assets/2feed478-9b36-42fe-9f83-cbe585e85e2a" />
-* 原始直方图桶（histogram buckets）*
+(https://github.com/user-attachments/assets/2feed478-9b36-42fe-9f83-cbe585e85e2a)
+*原始直方图桶（histogram buckets）*
 
 例如，单击“le=0.1“的条目，发现对应的Y轴值为0.5，意思是过去5分钟的http请求延迟低于0.1s的请求速率，合计每秒0.5个。例如le=”+Inf“的条目对应Y轴值大约为1，即为5分钟内收到的所有请求大约为1x5x60=300个，和测试相符。
 
